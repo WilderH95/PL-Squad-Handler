@@ -5,3 +5,26 @@ data = {
     'First Name' : [],
     'Surname' : []
 }
+
+squad_urls = {
+    'Arsenal':           'https://www.premierleague.com/clubs/1/Arsenal/squad?se=777',
+    'Aston Villa':       'https://www.premierleague.com/clubs/2/Aston-Villa/squad?se=777',
+    'Bournemouth':       'https://www.premierleague.com/clubs/127/Bournemouth/squad?se=777',
+    'Brentford':         'https://www.premierleague.com/clubs/130/Brentford/squad?se=777',
+    'Brighton':          'https://www.premierleague.com/clubs/131/Brighton-and-Hove-Albion/squad?se=777',
+    'Burnley':           'https://www.premierleague.com/clubs/43/Burnley/squad?se=777',
+    'Chelsea':           'https://www.premierleague.com/clubs/4/Chelsea/squad?se=777',
+    'Crystal Palace':    'https://www.premierleague.com/clubs/6/Crystal-Palace/squad?se=777',
+    'Everton':           'https://www.premierleague.com/clubs/7/Everton/squad?se=777',
+    'Fulham':            'https://www.premierleague.com/clubs/34/Fulham/squad?se=777',
+    'Leeds':             'https://www.premierleague.com/clubs/9/Leeds-United/squad?se=777',
+    'Liverpool':         'https://www.premierleague.com/clubs/10/Liverpool/squad?se=777',
+    'Man City':          'https://www.premierleague.com/clubs/11/Manchester-City/squad?se=777',
+    'Man United':        'https://www.premierleague.com/clubs/12/Manchester-United/squad?se=777',
+    'Newcastle':         'https://www.premierleague.com/clubs/23/Newcastle-United/squad?se=777',
+    'Nottingham Forest': 'https://www.premierleague.com/clubs/15/Nottingham-Forest/squad?se=777',
+    'Sunderland ':       'https://www.premierleague.com/clubs/29/Sunderland/squad?se=777',
+    'Spurs':             'https://www.premierleague.com/clubs/21/Tottenham-Hotspur/squad?se=777',
+    'West Ham':          'https://www.premierleague.com/clubs/25/West-Ham-United/squad?se=777',
+    'Wolves':            'https://www.premierleague.com/clubs/38/Wolverhampton-Wanderers/squad?se=777'
+}
