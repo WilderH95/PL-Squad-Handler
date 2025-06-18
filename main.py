@@ -51,11 +51,6 @@ opta_ids = [n.strip("p") for n in photo_ids]
 #Ensure all last names start with a capital letter
 last_names = [smart_capitalize(n) for n in last_names]
 
-# #Get the last names from the HTML
-# last_name_div = soup.find_all(name="div", class_='stats-card__player-last')
-# last_names = [n.get_text() for n in last_name_div]
-
-
 dh = DataHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
 df = dh.create_df()
 df.to_csv("out.csv", index=False, encoding='utf-8-sig')
