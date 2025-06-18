@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dereling</title>
+</head>
+<body>
+    <h1>Dereling</h1>
+    <h2>MADs Database Populator</h2>
+    <form method="post">
+        <label for="team">Select a team:</label>
+        <select name="team" id="team">
+            {% for name, url in squad_urls.items() %}
+            <option value="{{ name }}">{{ name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Send to Google Sheet</button>
+    </form>
+
+    {% if message %}
+        <p><strong>{{ message }}</strong></p>
+    {% endif %}
+</body>
+</html>
