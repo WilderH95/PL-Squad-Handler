@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: squad-handler
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: GOOGLE_APPLICATION_CREDENTIALS
+        value: service_account.json
+    autoDeploy: true
