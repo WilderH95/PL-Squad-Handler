@@ -4,6 +4,12 @@ import requests
 from bs4 import BeautifulSoup
 from datahandler import DataHandler
 from dictionaries import *
+import locale
+
+try:
+    locale.setlocale(locale.LC_ALL, 'en_GB.UTF-8')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, 'C.UTF-8')
 
 GOOGLE_API_KEY = "mads-database-463316-6011abf590bd.json"
 
@@ -68,7 +74,10 @@ def update_squad(team_name):
         # Populate the data dict and create df. Output the df as a csv file
         dh = DataHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
         df = dh.create_df()
-
+        sorted_df = df.sort_values(
+            by='Surname',
+            key=lambda col: col.map(lambda x: locale.strxfrm(x or ""))
+        )
         # Google Sheets integration
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
         creds = ServiceAccountCredentials.from_json_keyfile_name(GOOGLE_API_KEY, scope)
@@ -78,7 +87,7 @@ def update_squad(team_name):
                                    "/edit?gid=977708243#gid=977708243")
         worksheet = sheet.worksheet(team_name)
         worksheet.batch_clear(['A6:Z59'])
-        worksheet.update(range_name='A6', values=df.values.tolist())
+        worksheet.update(range_name='A6', values=sorted_df.values.tolist())
 
         return True, f"{team_name} squad updated successfully."
 
