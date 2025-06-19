@@ -4,18 +4,11 @@ import requests
 from bs4 import BeautifulSoup
 from datahandler import DataHandler
 from dictionaries import *
-import locale
-
-
-try:
-    locale.setlocale(locale.LC_ALL, 'C.UTF-8')
-except locale.Error:
-    locale.setlocale(locale.LC_ALL, '')
-
-print("Active locale:", locale.getlocale())
+from pyuca import Collator
 
 GOOGLE_API_KEY = "mads-database-463316-6011abf590bd.json"
 
+collator = Collator()
 
 def smart_capitalize(text):
     return ' '.join(word[0].upper() + word[1:] if word else '' for word in text.split())
@@ -78,8 +71,8 @@ def update_squad(team_name):
         dh = DataHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
         df = dh.create_df()
         sorted_df = df.sort_values(
-            by='Surname',
-            key=lambda col: col.map(lambda x: locale.strxfrm(x or ""))
+            by="Surname",
+            key=lambda col: col.map(lambda x: collator.sort_key(x or ""))
         )
         # Google Sheets integration
         scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
