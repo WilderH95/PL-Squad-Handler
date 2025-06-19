@@ -29,6 +29,7 @@
                         <div class="mb-3">
                             <label for="team" class="form-label">Select a team</label>
                             <select name="team" id="team" class="form-select" onchange="applyTeamColor(this.value)">
+                                <option>Pick a team</option>
                                 {% for name, url in squad_urls.items() %}
                                 <option value="{{ name }}">{{ name }}</option>
                                 {% endfor %}
