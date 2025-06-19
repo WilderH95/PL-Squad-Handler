@@ -6,10 +6,13 @@ from datahandler import DataHandler
 from dictionaries import *
 import locale
 
+
 try:
-    locale.setlocale(locale.LC_ALL, 'en_GB.UTF-8')
-except locale.Error:
     locale.setlocale(locale.LC_ALL, 'C.UTF-8')
+except locale.Error:
+    locale.setlocale(locale.LC_ALL, '')
+
+print("Active locale:", locale.getlocale())
 
 GOOGLE_API_KEY = "mads-database-463316-6011abf590bd.json"
 
