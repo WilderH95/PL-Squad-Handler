@@ -122,16 +122,25 @@ def read_sheet(team_name):
 
 
 def combine_df(google_sheet, pl_data):
+    #Comibine the Google Sheet DF with the PL Website DF
     merged_df = pd.merge(google_sheet, pl_data, how="outer", on=["Opta ID", "Photo Name", "Squad Number",
                                                                 "First Name", "Surname"]
                          )
+    #Separate the merged DF into one with all players with no Opta ID and ones with
+    with_opta_id = merged_df[merged_df["Opta ID"].notna() & (merged_df["Opta ID"] != "")]
+    no_opta_id = merged_df[merged_df["Opta ID"].isna() | (merged_df["Opta ID"] == "")]
 
-    sort_by_no = merged_df.sort_values('Squad Number', ascending=False)
-
+    #Remove the duplicated players by Opta ID, ensuring those with a squad number remain if they exist
+    sort_by_no = with_opta_id.sort_values('Squad Number', ascending=False)
     drop_dups = sort_by_no.drop_duplicates(subset="Opta ID")
 
-    sorted_merged_df = drop_dups.sort_values(
+    #Re-combine the Opta ID players and no Opta ID players
+    recombined_df = pd.concat([drop_dups, no_opta_id], ignore_index=True)
+
+    #Sort all the players by surname
+    sorted_merged_df = recombined_df.sort_values(
         by="Surname",
         key=lambda col: col.map(lambda x: collator.sort_key(x or ""))
-    )
+    ).reset_index(drop=True)
+
     return sorted_merged_df
