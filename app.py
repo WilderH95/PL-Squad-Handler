@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for
-from scraper import update_squad
+from datahandler import update_squad
 from dictionaries import *
 
 app = Flask(__name__)
