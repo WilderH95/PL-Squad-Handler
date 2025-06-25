@@ -10,8 +10,7 @@ def index():
     if request.method == 'POST':
         team = request.form.get('team')
         df = get_pl_squad(team)
-        sheet = open_sheet(team)
-        success, message = update_sheet(worksheet=sheet, dataframe=df, range='A6', team_name=team)
+        success, message = update_sheet(dataframe=df, start_range='A6', team_name=team)
         return render_template('index.html', squad_urls=squad_urls, message=message)
 
     return render_template('index.html', squad_urls=squad_urls)

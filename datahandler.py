@@ -10,7 +10,7 @@ GOOGLE_API_KEY = "mads-database-463316-6011abf590bd.json"
 
 collator = Collator()
 
-def open_sheet(team_name):
+def _open_sheet(team_name):
     scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
     creds = ServiceAccountCredentials.from_json_keyfile_name(GOOGLE_API_KEY, scope)
     client = gspread.authorize(creds)
@@ -19,10 +19,11 @@ def open_sheet(team_name):
                                "/edit?gid=977708243#gid=977708243")
     return sheet.worksheet(team_name)
 
-def update_sheet(worksheet, dataframe, range, team_name):
+def update_sheet(dataframe, start_range, team_name):
     try:
+        worksheet = _open_sheet(team_name)
         worksheet.batch_clear(['A6:Z59'])
-        worksheet.update(range_name=range, values=dataframe.values.tolist())
+        worksheet.update(range_name=start_range, values=dataframe.values.tolist())
 
         return True, f"{team_name} squad updated successfully."
 
