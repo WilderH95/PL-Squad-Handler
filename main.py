@@ -1,8 +1,10 @@
 import gspread
+import pandas as pd
+from gspread.utils import Dimension
 from oauth2client.service_account import ServiceAccountCredentials
 import requests
 from bs4 import BeautifulSoup
-from dfhandler import DataHandler
+from dfhandler import DFHandler
 from dictionaries import *
 from pyuca import Collator
 
@@ -22,7 +24,7 @@ def _open_sheet(team_name):
 def update_sheet(dataframe, start_range, team_name):
     try:
         worksheet = _open_sheet(team_name)
-        worksheet.batch_clear(['A6:Z59'])
+        worksheet.batch_clear(['A6:E59'])
         worksheet.update(range_name=start_range, values=dataframe.values.tolist())
 
         return True, f"{team_name} squad updated successfully."
@@ -86,13 +88,50 @@ def get_pl_squad(team_name):
     last_names = [smart_capitalize(n) for n in last_names]
 
     # Populate the data dict and create df. Output the df as a csv file
-    dh = DataHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
-    df = dh.create_df()
-    sorted_df = df.sort_values(
+    site_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
+    site_df = site_dh.create_df()
+    sorted_df = site_df.sort_values(
         by="Surname",
         key=lambda col: col.map(lambda x: collator.sort_key(x or ""))
     )
     return sorted_df
 
+#TODO - Add error handling around reading an empty sheet.
 def read_sheet(team_name):
-    pass
+    try:
+        worksheet = _open_sheet(team_name)
+        current_sheet = worksheet.get(range_name='A6:E59', major_dimension=Dimension.cols, pad_values=True)
+        opta_ids = current_sheet[0]
+        photo_ids = current_sheet[1]
+        squad_numbers = current_sheet[2]
+        first_names = current_sheet[3]
+        last_names = current_sheet[4]
+        sheet_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
+        sheet_df = sheet_dh.create_df()
+        return sheet_df
+
+    except IndexError:
+        opta_ids = []
+        photo_ids = []
+        squad_numbers = []
+        first_names = []
+        last_names = []
+        sheet_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
+        sheet_df = sheet_dh.create_df()
+        return sheet_df
+
+
+def combine_df(google_sheet, pl_data):
+    merged_df = pd.merge(google_sheet, pl_data, how="outer", on=["Opta ID", "Photo Name", "Squad Number",
+                                                                "First Name", "Surname"]
+                         )
+
+    sort_by_no = merged_df.sort_values('Squad Number', ascending=False)
+
+    drop_dups = sort_by_no.drop_duplicates(subset="Opta ID")
+
+    sorted_merged_df = drop_dups.sort_values(
+        by="Surname",
+        key=lambda col: col.map(lambda x: collator.sort_key(x or ""))
+    )
+    return sorted_merged_df
