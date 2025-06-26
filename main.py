@@ -24,7 +24,7 @@ def _open_sheet(team_name):
 def update_sheet(dataframe, start_range, team_name):
     try:
         worksheet = _open_sheet(team_name)
-        worksheet.batch_clear(['A6:E59'])
+        worksheet.batch_clear(['A6:O66'])
         worksheet.update(range_name=start_range, values=dataframe.values.tolist())
 
         return True, f"{team_name} squad updated successfully."
@@ -48,6 +48,18 @@ def get_pl_squad(team_name):
     squad_numbers = []
     first_names= []
     last_names = []
+    h_front = []
+    h_celeb = []
+    h_perso = []
+    h_back = []
+    a_front = []
+    a_celeb = []
+    a_perso = []
+    a_back = []
+    notes = []
+    qc_coms = []
+
+
 
     for player in all_players:
         # Get Opta IDs from the HTML
@@ -84,8 +96,22 @@ def get_pl_squad(team_name):
     # Ensure all last names start with a capital letter
     last_names = [smart_capitalize(n) for n in last_names]
 
+    #ensure the lists are filled up equally with empty values
+    for n in range(len(opta_ids)):
+        h_front.append("")
+        h_celeb.append("")
+        h_perso.append("")
+        h_back.append("")
+        a_front.append("")
+        a_celeb.append("")
+        a_perso.append("")
+        a_back.append("")
+        notes.append("")
+        qc_coms.append("")
+
     # Populate the data dict and create df. Output the df as a csv file
-    site_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
+    site_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names, h_front, h_celeb, h_perso, h_back,
+                        a_front, a_celeb, a_perso, a_back, notes, qc_coms)
     site_df = site_dh.create_df()
     sorted_df = site_df.sort_values(
         by="Surname",
@@ -93,7 +119,6 @@ def get_pl_squad(team_name):
     )
     return sorted_df
 
-#TODO - Add error handling around reading an empty sheet.
 def read_sheet(team_name):
     try:
         worksheet = _open_sheet(team_name)
@@ -103,7 +128,18 @@ def read_sheet(team_name):
         squad_numbers = current_sheet[2]
         first_names = current_sheet[3]
         last_names = current_sheet[4]
-        sheet_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
+        h_front = current_sheet[5]
+        h_celeb =current_sheet[6]
+        h_perso =current_sheet[7]
+        h_back = current_sheet[8]
+        a_front = current_sheet[9]
+        a_celeb = current_sheet[10]
+        a_perso = current_sheet[11]
+        a_back = current_sheet[12]
+        notes = current_sheet[13]
+        qc_coms = current_sheet[14]
+        sheet_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names, h_front, h_celeb, h_perso, h_back,
+                        a_front, a_celeb, a_perso, a_back, notes, qc_coms)
         sheet_df = sheet_dh.create_df()
         return sheet_df
 
@@ -113,7 +149,18 @@ def read_sheet(team_name):
         squad_numbers = []
         first_names = []
         last_names = []
-        sheet_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names)
+        h_front = []
+        h_celeb = []
+        h_perso = []
+        h_back = []
+        a_front = []
+        a_celeb = []
+        a_perso = []
+        a_back = []
+        notes = []
+        qc_coms = []
+        sheet_dh = DFHandler(opta_ids, photo_ids, squad_numbers, first_names, last_names, h_front, h_celeb, h_perso, h_back,
+                        a_front, a_celeb, a_perso, a_back, notes, qc_coms)
         sheet_df = sheet_dh.create_df()
         return sheet_df
 
@@ -121,7 +168,9 @@ def read_sheet(team_name):
 def combine_df(google_sheet, pl_data):
     #Comibine the Google Sheet DF with the PL Website DF
     merged_df = pd.merge(google_sheet, pl_data, how="outer", on=["Opta ID", "Photo Name", "Squad Number",
-                                                                "First Name", "Surname"]
+                                                                "First Name", "Surname", "Home Front", "Home Celeb",
+                                                                 "Home Perso", "Home Back", "Away Front", "Away Celeb",
+                                                                 "Away Perso", "Away Back", "Notes", "QC Comments"]
                          )
     #Separate the merged DF into one with all players with no Opta ID and ones with
     with_opta_id = merged_df[merged_df["Opta ID"].notna() & (merged_df["Opta ID"] != "")]
