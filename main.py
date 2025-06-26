@@ -36,9 +36,6 @@ def smart_capitalize(text):
     return ' '.join(word[0].upper() + word[1:] if word else '' for word in text.split())
 
 def get_pl_squad(team_name):
-    for key in data:
-        data[key].clear()
-
     url = squad_urls[team_name]
     request = requests.get(url)
     soup = BeautifulSoup(request.text, features="html.parser")

@@ -1,11 +1,3 @@
-data = {
-    'Opta ID' : [],
-    'Photo Name' : [],
-    'Squad Number' : [],
-    'First Name' : [],
-    'Surname' : []
-}
-
 squad_urls = {
     'Arsenal':           'https://www.premierleague.com/clubs/1/Arsenal/squad?se=777',
     'Aston Villa':       'https://www.premierleague.com/clubs/2/Aston-Villa/squad?se=777',
