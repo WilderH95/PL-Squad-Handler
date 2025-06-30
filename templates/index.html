@@ -29,7 +29,6 @@
                         <div class="mb-3">
                             <label for="team" class="form-label">Select a team</label>
                             <select name="team" id="team" class="form-select" onchange="applyTeamColor(this.value)">
-                                <option>-</option>
                                 {% for name, url in squad_urls.items() %}
                                 <option value="{{ name }}">{{ name }}</option>
                                 {% endfor %}
@@ -48,7 +47,8 @@
                         <div class="alert alert-success mt-3" role="alert">
                         <strong>{{ message }}</strong>
                         </div>
-                        {% if not new_players %}
+                        {% if new_players == "-" %}
+                        {% elif not new_players %}
                             <div class="alert alert-info" role="alert">
                             <Strong class="alert-heading">No new players added</Strong>
                             </div>

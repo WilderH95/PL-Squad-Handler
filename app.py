@@ -13,15 +13,19 @@ datahandler = DataHandler(GOOGLE_API_KEY)
 def index():
     if request.method == 'POST':
         team = request.form.get('team')
-        pl_data = datahandler.get_pl_squad(team)
-        current_sheet = datahandler.read_sheet(team)
-        merged_df = datahandler.combine_df(current_sheet, pl_data)
-        success, message = datahandler.update_sheet(dataframe=merged_df, start_range='A6', team_name=team)
-        new_ps = datahandler.calculate_new_players(current_sheet, pl_data)
-        now = datetime.datetime.now().strftime("%d/%m/%Y, %H:%M")
-        datahandler.populate_time(now, team)
-        return render_template('index.html', squad_urls=squad_urls, message=message,
-                               new_players = new_ps, time=now)
+        if team == "-":
+            message = "Please select a valid option"
+            return render_template('index.html', message=message, squad_urls=squad_urls, new_players = "-")
+        else:
+            pl_data = datahandler.get_pl_squad(team)
+            current_sheet = datahandler.read_sheet(team)
+            merged_df = datahandler.combine_df(current_sheet, pl_data)
+            success, message = datahandler.update_sheet(dataframe=merged_df, start_range='A6', team_name=team)
+            new_ps = datahandler.calculate_new_players(current_sheet, pl_data)
+            now = datetime.datetime.now().strftime("%d/%m/%Y, %H:%M")
+            datahandler.populate_time(now, team)
+            return render_template('index.html', squad_urls=squad_urls, message=message,
+                                   new_players = new_ps, time=now)
 
     return render_template('index.html', squad_urls=squad_urls)
 
