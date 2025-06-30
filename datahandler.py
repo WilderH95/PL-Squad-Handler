@@ -54,6 +54,7 @@ class DataHandler:
         self.a_back = None
         self.notes = None
         self.qc_coms = None
+        self.new_players_list = []
 
     def _open_sheet(self, team_name):
         self.sheet = self.client.open_by_url(
@@ -67,7 +68,7 @@ class DataHandler:
             self.worksheet.batch_clear(['A6:O59'])
             self.worksheet.update(range_name=start_range, values=dataframe.values.tolist())
 
-            return True, f"{team_name} squad updated successfully."
+            return True, f"{team_name} squad updated successfully"
 
         except Exception as e:
             return False, f"Failed to update {team_name}: {e}"
@@ -191,12 +192,9 @@ class DataHandler:
 
     def combine_df(self, google_sheet, pl_data):
         # Combine the Google Sheet DF with the PL Website DF
-        print(google_sheet.isna().sum())
-        print(pl_data.isna().sum())
-        self.merged_df = pd.merge(google_sheet, pl_data, how="outer", on=["Opta ID", "Photo Name", "Squad Number",
-                                                                     "First Name", "Surname"]
-                             )
-        print(self.merged_df.isna().sum())
+        self.merged_df = pd.merge(google_sheet, pl_data, how="outer", on=["Opta ID", "Photo Name",
+                                                                                          "Squad Number", "First Name",
+                                                                                          "Surname"])
         # Separate the merged DF into one with all players with no Opta ID and ones with
         self.with_opta_id = self.merged_df[self.merged_df["Opta ID"].notna() & (self.merged_df["Opta ID"] != "")]
         self.no_opta_id = self.merged_df[self.merged_df["Opta ID"].isna() | (self.merged_df["Opta ID"] == "")]
@@ -217,3 +215,17 @@ class DataHandler:
         self.sorted_merged_df = self.sorted_merged_df.fillna(" ")
 
         return self.sorted_merged_df
+
+    def calculate_new_players(self, google_sheet, pl_data):
+        # Compare the Google sheet and PL website data and create a new df containing only the new players from pl.com
+        dup_players = pl_data[pl_data['Opta ID'].isin(google_sheet['Opta ID'])
+                              & pl_data['Surname'].isin(google_sheet['Surname'])]
+
+        new_players = pl_data[~pl_data['Opta ID'].isin(google_sheet['Opta ID'])
+                              | ~pl_data['Surname'].isin(google_sheet['Surname'])]
+        # Change the new players dataframe into a list for easy parsing in Jinja
+        self.new_players_list = []
+        for index, row in new_players.iterrows():
+            self.new_players_list.append([row["Opta ID"], row["Squad Number"], row["First Name"], row["Surname"]])
+
+        return self.new_players_list
