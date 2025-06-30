@@ -229,3 +229,8 @@ class DataHandler:
             self.new_players_list.append([row["Opta ID"], row["Squad Number"], row["First Name"], row["Surname"]])
 
         return self.new_players_list
+
+    def populate_time(self, time, team_name):
+        self.worksheet = self._open_sheet(team_name)
+        self.worksheet.batch_clear(['C1:D1'])
+        self.worksheet.update_acell('C2', time)
