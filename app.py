@@ -13,9 +13,7 @@ def index():
     if request.method == 'POST':
         team = request.form.get('team')
         pl_data = datahandler.get_pl_squad(team)
-        print(pl_data.shape)
         current_sheet = datahandler.read_sheet(team)
-        print(current_sheet.shape)
         merged_df = datahandler.combine_df(current_sheet, pl_data)
         success, message = datahandler.update_sheet(dataframe=merged_df, start_range='A6', team_name=team)
         return render_template('index.html', squad_urls=squad_urls, message=message)
