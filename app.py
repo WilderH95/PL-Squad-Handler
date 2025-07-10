@@ -2,12 +2,19 @@ from flask import Flask, render_template, request, redirect, url_for
 from dictionaries import *
 from datahandler import DataHandler
 import datetime
+import os
+from dotenv import load_dotenv
+
 
 GOOGLE_API_KEY = "mads-database-463316-6011abf590bd.json"
 
+load_dotenv()
+OPTA_USER = os.getenv("OPTA_USER")
+OPTA_KEY = os.getenv("OPTA_KEY")
+
 app = Flask(__name__)
 
-datahandler = DataHandler(GOOGLE_API_KEY)
+datahandler = DataHandler(google_api_key=GOOGLE_API_KEY, opta_user=OPTA_USER, opta_key=OPTA_KEY, season=8)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

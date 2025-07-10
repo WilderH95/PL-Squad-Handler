@@ -10,7 +10,7 @@ squad_urls = {
     'Crystal Palace':    'https://www.premierleague.com/clubs/6/Crystal-Palace/squad?se=777',
     'Everton':           'https://www.premierleague.com/clubs/7/Everton/squad?se=777',
     'Fulham':            'https://www.premierleague.com/clubs/34/Fulham/squad?se=777',
-    'Leeds':             'https://www.premierleague.com/clubs/9/Leeds-United/squad?se=777',
+    'Leeds':             'https://www.premierleague.com/en/clubs/2/leeds-united/squad',
     'Liverpool':         'https://www.premierleague.com/clubs/10/Liverpool/squad?se=777',
     'Man City':          'https://www.premierleague.com/clubs/11/Manchester-City/squad?se=777',
     'Man Utd':           'https://www.premierleague.com/clubs/12/Manchester-United/squad?se=777',

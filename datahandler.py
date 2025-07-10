@@ -12,12 +12,13 @@ collator = Collator()
 
 class DataHandler:
 
-    def __init__(self, api_key):
+    def __init__(self, google_api_key, opta_user, opta_key, season):
         self.scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-        self.creds = ServiceAccountCredentials.from_json_keyfile_name(api_key, self.scope)
+        self.creds = ServiceAccountCredentials.from_json_keyfile_name(google_api_key, self.scope)
         self.client = gspread.authorize(self.creds)
         self.worksheet = None
-        self.url = None
+        self.url = (f"https://omo.akamai.opta.net/competition.php?user={opta_user}&psw={opta_key}&competition=8"
+                    f"&season_id={season}&feed_type=F40")
         self.request = None
         self.soup = None
         self.all_players = None
@@ -76,8 +77,7 @@ class DataHandler:
     def _smart_capitalise(self, text):
         return ' '.join(word[0].upper() + word[1:] if word else '' for word in text.split())
 
-    def get_pl_squad(self, team_name):
-        self.url = squad_urls[team_name]
+    def get_pl_squad(self, team_name, key):
         self.request = requests.get(self.url)
         self.soup = BeautifulSoup(self.request.text, features="html.parser")
 
