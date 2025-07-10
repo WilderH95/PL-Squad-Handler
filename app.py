@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import dictionaries
 from datahandler import DataHandler
 import datetime
+import pytz
 import os
 from dotenv import load_dotenv
 
@@ -29,7 +30,8 @@ def index():
             merged_df = datahandler.combine_df(current_sheet, pl_data)
             success, message = datahandler.update_sheet(dataframe=merged_df, start_range='A6', team_name=team)
             new_ps = datahandler.calculate_new_players(current_sheet, pl_data)
-            now = datetime.datetime.now().strftime("%d/%m/%Y, %H:%M")
+            tz_london = pytz.timezone('Europe/London')
+            now = datetime.datetime.now(tz_london).strftime("%d/%m/%Y, %H:%M")
             datahandler.populate_time(now, team)
             return render_template('index.html', squad_urls=dictionaries.teams, message=message,
                                    new_players = new_ps, time=now)

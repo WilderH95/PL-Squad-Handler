@@ -19,7 +19,6 @@ class DataHandler:
         self.worksheet = None
         self.url = (f"https://omo.akamai.opta.net/competition.php?user={opta_user}&psw={opta_key}&competition=8"
                     f"&season_id={season}&feed_type=F40")
-        # self.url = "https://omo.akamai.opta.net/competition.php?user=AEL_BBCSport&psw=nm6YM5BDTE1PmPs&competition=8&season_id=2025&feed_type=F40"
         self.request = None
         self.soup = None
         self.all_players = None
