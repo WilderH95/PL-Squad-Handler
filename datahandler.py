@@ -243,9 +243,3 @@ class DataHandler:
         self.worksheet = self._open_sheet(team_name)
         self.worksheet.batch_clear(['C1:D1'])
         self.worksheet.update_acell('C2', time)
-
-
-# dh = DataHandler(google_api_key="mads-database-463316-6011abf590bd.json", opta_user="AEL_BBCSport",
-#                  opta_key="nm6YM5BDTE1PmPs", season=2025)
-#
-# print(dh.get_pl_squad("Wolves"))
