@@ -3,10 +3,10 @@ import pandas as pd
 from gspread.utils import Dimension
 from oauth2client.service_account import ServiceAccountCredentials
 import requests
-from bs4 import BeautifulSoup
 from dfhandler import DFHandler
-from dictionaries import *
+import dictionaries
 from pyuca import Collator
+import xml.etree.ElementTree as ET
 
 collator = Collator()
 
@@ -19,6 +19,7 @@ class DataHandler:
         self.worksheet = None
         self.url = (f"https://omo.akamai.opta.net/competition.php?user={opta_user}&psw={opta_key}&competition=8"
                     f"&season_id={season}&feed_type=F40")
+        # self.url = "https://omo.akamai.opta.net/competition.php?user=AEL_BBCSport&psw=nm6YM5BDTE1PmPs&competition=8&season_id=2025&feed_type=F40"
         self.request = None
         self.soup = None
         self.all_players = None
@@ -27,8 +28,8 @@ class DataHandler:
         self.first_names = None
         self.last_names = None
         self.opta_ids = None
-        self.site_dh = None
-        self.site_df = None
+        self.opta_dh = None
+        self.opta_df = None
         self.sorted_df = None
         self.current_sheet = None
         self.sh_opta_ids = None
@@ -77,12 +78,22 @@ class DataHandler:
     def _smart_capitalise(self, text):
         return ' '.join(word[0].upper() + word[1:] if word else '' for word in text.split())
 
-    def get_pl_squad(self, team_name, key):
-        self.request = requests.get(self.url)
-        self.soup = BeautifulSoup(self.request.text, features="html.parser")
+    def get_pl_squad(self, team):
+        # Call opta squad list API and parse the text using xml.etree
+        self.response = requests.get(self.url)
+        root = ET.fromstring(self.response.text)
+        # Find all teams present in the XML and store in variable
+        clubs = root[0].findall('Team')
+        # Get the selected team Opta ID from the 'teams' dictionary
+        club_opta_id = dictionaries.teams[team]
+        # Iterate through all teams in the XML and pick out the selected team
+        selected_club = None
+        for club in clubs:
+            if club.attrib['uID'] == club_opta_id:
+                selected_club = club
 
-        # Parse the HTML to grab all the player cards from the squad page
-        self.all_players = self.soup.find_all('li', class_='stats-card')
+        # Get all the players from a selected team
+        selected_players = selected_club.findall('Player')
 
         # Initialise lists
         self.photo_ids = []
@@ -90,34 +101,32 @@ class DataHandler:
         self.first_names = []
         self.last_names = []
 
-        for player in self.all_players:
-            # Get Opta IDs from the HTML
-            photo_id = player.find(name='img', class_='statCardImg statCardPlayer')
+        # Iterate over each player and pull out the required data
+        for player in selected_players:
+            photo_id = player.attrib['uID']
             if photo_id:
-                self.photo_ids.append(photo_id['data-player'])
+                self.photo_ids.append(photo_id)
             else:
                 self.photo_ids.append(None)
+            # Drill down into the stat for each player and pull out the text from those elements
+            player_data = player.findall('Stat')
+            for stat in player_data:
+                stat_type = stat.get('Type')
 
-            # Get squad numbers from the HTML
-            squad_number = player.find(name="div", class_='stats-card__squad-number u-hide-mob-l')
-            if squad_number:
-                self.squad_numbers.append(squad_number.get_text())
-            else:
-                self.squad_numbers.append(None)
+                if stat_type == "jersey_num":
+                    squad_number = stat.text
+                    self.squad_numbers.append(squad_number)
 
-            # Get the first names from the HTML
-            first_name = player.find(name="div", class_='stats-card__player-first')
-            if first_name:
-                self.first_names.append(first_name.get_text().strip())
-            else:
-                self.first_names.append(None)
+                if stat_type == "first_name":
+                    first_name = stat.text
+                    self.first_names.append(first_name)
 
-            # Get the last names from the HTML
-            last_name = player.find(name="div", class_='stats-card__player-last')
-            if last_name:
-                self.last_names.append(last_name.get_text().strip())
-            else:
-                self.last_names.append(None)
+                if stat_type == "last_name":
+                    last_name = stat.text
+                    self.last_names.append(last_name)
+
+        # If squad number is 'Unknown' replace with None
+        self.squad_numbers = [unknown.replace('Unknown','') for unknown in self.squad_numbers]
 
         # Create a list of Opta IDs by stripping the "p" out of the Photo IDs
         self.opta_ids = [n.strip("p") for n in self.photo_ids]
@@ -126,11 +135,11 @@ class DataHandler:
         self.last_names = [self._smart_capitalise(n) for n in self.last_names]
 
         # Populate the data dict and create df. Output the df as a csv file
-        self.site_dh = DFHandler()
-        self.site_dh.populate_PL_data(self.opta_ids, self.photo_ids, self.squad_numbers,
-                                                       self.first_names, self.last_names)
-        self.site_df = self.site_dh.create_df()
-        self.sorted_df = self.site_df.sort_values(
+        self.opta_dh = DFHandler()
+        self.opta_dh.populate_PL_data(self.opta_ids, self.photo_ids, self.squad_numbers,
+                                      self.first_names, self.last_names)
+        self.opta_df = self.opta_dh.create_df()
+        self.sorted_df = self.opta_df.sort_values(
             by="Surname",
             key=lambda col: col.map(lambda x: collator.sort_key(x or ""))
         )
@@ -234,3 +243,9 @@ class DataHandler:
         self.worksheet = self._open_sheet(team_name)
         self.worksheet.batch_clear(['C1:D1'])
         self.worksheet.update_acell('C2', time)
+
+
+# dh = DataHandler(google_api_key="mads-database-463316-6011abf590bd.json", opta_user="AEL_BBCSport",
+#                  opta_key="nm6YM5BDTE1PmPs", season=2025)
+#
+# print(dh.get_pl_squad("Wolves"))
